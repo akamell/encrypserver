@@ -9,10 +9,12 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}}, allow_headers='Accept,
 from api.Controllers.Autenticacion import mod
 from api.Controllers.Registro import mod
 from api.Controllers.Cifrado import mod
+from api.Controllers.Firma import mod
 
 app.register_blueprint(Controllers.Autenticacion.mod, url_prefix='/api/auth')
 app.register_blueprint(Controllers.Registro.mod, url_prefix='/api/registro')
 app.register_blueprint(Controllers.Cifrado.mod, url_prefix='/api/cifrado')
+app.register_blueprint(Controllers.Firma.mod, url_prefix='/api/firma')
 
 @app.before_request
 def before_request():
