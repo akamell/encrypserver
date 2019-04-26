@@ -37,3 +37,7 @@ __pycache__/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Environment Files #
+#####################
+.env
