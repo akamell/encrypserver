@@ -1,7 +1,7 @@
 from flask import Blueprint, json, jsonify, make_response, request
 from flask import Flask, Response, g
-#from api.Models.User import User
-from functools import wraps
+
+from api.Models.User import User
 import datetime, hashlib, jwt, base64
 from api.Helpers.Helper import Helper
 
@@ -45,4 +45,27 @@ def registrar():
         "apellido": apellido,
         "sha1": str(hex_dig)
     }
+
+    nuevo = User()    
+    nuevo.username = user
+    nuevo.password = str(hex_dig)
+    nuevo.nombre = nombre
+    nuevo.apellido = apellido    
+    ok = nuevo.save()
+    return Helper.jsonResponse(200, "Exito", data)
+
+@mod.route("", methods=['GET'])
+def obtener():
+    users = User.select()
+    data = []
+    for user in users:
+        temp = {
+            "id": user.id,
+            "username": user.username,
+            "password": user.password,
+            "nombre": user.nombre,
+            "apellido": user.apellido
+        }
+        data.append(temp)
+
     return Helper.jsonResponse(200, "Exito", data)
