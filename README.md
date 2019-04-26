@@ -11,7 +11,7 @@ git clone https://github.com/akamell/encrypserver.git
 2. Instalar paquetes necesarios
 
 ```shell
-pip install flask flask-cors PyJWT pygcop2 python-dotenv
+pip install flask flask-cors PyJWT peewee pycryptodome psygcop2 python-dotenv
 ```
 
 3. Crear archivo .env en la carpeta raiz del repositorio
