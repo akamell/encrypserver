@@ -10,47 +10,24 @@ mod = Blueprint('CifradoController',__name__)
 
 @mod.route("", methods=['POST'])
 def cifrarArchivo():
-    jsondata = Helper.validarDataPost(request)	
-    if jsondata == None:
-	    return Helper.jsonResponse(400, "Json invalid "+str(jsondata), None)
-    ip = request.remote_addr
-    if 'archivo' in jsondata is False:
-	    return Helper.jsonResponse(-1, "username no puede ser vacio", None)
-    if 'password' in jsondata is False:
-	    return Helper.jsonResponse(-2, "Password no puede ser vacio", None)
-
-    archivo = jsondata.get('archivo','')
-    if archivo == '':
-        return Helper.jsonResponse(-3, "Error parametro no valido", None)
-    passwd = jsondata.get('password','')
-    if passwd == '':
-        return Helper.jsonResponse(-4, "Error parametro no valido", None)
-    
+    fromdata = request.form
+    passwd = fromdata['password']
+    archivo = request.files['archivo']
+    stream = archivo.stream.read()
+    stream = stream.decode("utf-8")
     aes = Aes(passwd)
-    resultado = aes.encrypt(archivo)
-    
+    resultado = aes.encrypt(stream)
     return Helper.jsonResponse(200, "Cifrado", resultado)
 
 
 @mod.route("", methods=['PUT'])
 def descifrarArchivo():
-    jsondata = Helper.validarDataPost(request)	
-    if jsondata == None:
-	    return Helper.jsonResponse(400, "Json invalid "+str(jsondata), None)
-    ip = request.remote_addr
-    if 'archivo' in jsondata is False:
-	    return Helper.jsonResponse(-1, "username no puede ser vacio", None)
-    if 'password' in jsondata is False:
-	    return Helper.jsonResponse(-2, "Password no puede ser vacio", None)
-
-    archivo = jsondata.get('archivo','')
-    if archivo == '':
-        return Helper.jsonResponse(-3, "Error parametro no valido", None)
-    passwd = jsondata.get('password','')
-    if passwd == '':
-        return Helper.jsonResponse(-4, "Error parametro no valido", None)
-    
-    aes = Aes("P1ssw0rd2")
-    resultado = aes.decrypt(archivo)
-    
-    return Helper.jsonResponse(200, "Cifrado", resultado)
+    fromdata = request.form
+    passwd = fromdata['password']
+    archivo = request.files['archivo']
+    stream = archivo.stream.read().decode("utf-8") 
+    print(stream)
+    print(passwd)
+    aes = Aes(passwd)
+    resultado = aes.decrypt(stream)
+    return Helper.jsonResponse(200, "Descifrado", resultado)

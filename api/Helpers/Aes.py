@@ -1,5 +1,5 @@
 import base64
-import hashlib
+import hashlib, re
 from Crypto import Random
 from Crypto.Cipher import AES
 
@@ -16,7 +16,7 @@ class Aes(object):
         return base64.b64encode(iv + cipher.encrypt(raw))
 
     def decrypt(self, enc):
-        enc = base64.b64decode(enc)
+        enc = self.decode_base64(enc)
         iv = enc[:AES.block_size]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         return self._unpad(cipher.decrypt(enc[AES.block_size:])).decode('utf-8')
@@ -27,3 +27,12 @@ class Aes(object):
     @staticmethod
     def _unpad(s):
         return s[:-ord(s[len(s)-1:])]
+
+    def decode_base64(self, data):
+        altchars=b'+/'        
+        data = re.sub('[^a-zA-Z0-9%s]+' % altchars, '', data)  # normalize
+        missing_padding = len(data) % 4
+        if missing_padding:
+            data += '='* (4 - missing_padding)
+        return base64.b64decode(data, altchars)
+
