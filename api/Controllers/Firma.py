@@ -7,16 +7,12 @@ mod = Blueprint('FirmaController',__name__)
 
 @mod.route("/firmar", methods=['POST'])
 def cifrarArchivo():
-    fromdata = request.form
     archivo = request.files['archivo']
-    #stream = archivo.stream.read().decode('utf-8')
     stream = archivo.stream.read()
-    stream = b'ESTEESUNMENSAJECOMPADRE'
-    print(stream)
-    print("INUYASHA")
+    stream = stream.decode("utf-8")
     rsa = Rsa()
     firma = rsa.firmar(stream)
-    return Helper.jsonResponse(200, "Firmado", firma)
+    return Helper.jsonResponse(200, "Firmado", firma.decode("utf-8"))
 
 
 @mod.route("/validar", methods=['PUT'])
@@ -25,8 +21,6 @@ def descifrarArchivo():
     signature = fromdata['signature']
     archivo = request.files['archivo']
     stream = archivo.stream.read()
-    print(stream)
-    print(signature)
     rsa = Rsa()
-    ok = rsa.validar(stream, signature)
-    return Helper.jsonResponse(200, "Verificacion", ok)
+    check = rsa.validar(stream, signature)
+    return Helper.jsonResponse(200, "Verificacion", check)
