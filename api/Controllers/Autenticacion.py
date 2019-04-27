@@ -1,6 +1,7 @@
 from flask import Blueprint, json, jsonify, make_response, request
 from flask import Flask, Response, g
-#from api.Models.User import User
+
+from api.Models.User import User
 from functools import wraps
 import datetime, hashlib, jwt, base64
 from api.Helpers.Helper import Helper
@@ -26,6 +27,13 @@ def login():
     if passwd == '':
 	    return Helper.jsonResponse(-4,"Parametro invalido", None)
 
+    hash_object = hashlib.sha1(passwd.encode())
+    hex_dig = hash_object.hexdigest()
+
+    usuarioValido = User.select().where(User.username == user).where(User.password == str(hex_dig)).first()
+    if usuarioValido == None:
+        return Helper.jsonResponse(400, "Usuario y/o password incorrecto", None)
+    
     iat = datetime.datetime.now()
     uuid = Helper.generarStringUuid()
     payloadAccess = {
