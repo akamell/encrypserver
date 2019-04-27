@@ -17,7 +17,7 @@ def cifrarArchivo():
     stream = stream.decode("utf-8")
     aes = Aes(passwd)
     resultado = aes.encrypt(stream)
-    return Helper.jsonResponse(200, "Cifrado", resultado)
+    return Helper.jsonResponse(200, "Cifrado", resultado.decode("utf-8"))
 
 
 @mod.route("", methods=['PUT'])
