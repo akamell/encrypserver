@@ -1,60 +1,39 @@
 import errno
-from Crypto.Hash import SHA256
-from Crypto.Hash import MD5
-from Crypto import Random
-from Crypto.PublicKey import RSA
+import codecs
+
 from Crypto.Signature import PKCS1_v1_5
-from Crypto.Signature import PKCS1_PSS
+from Crypto.Hash import MD5
+from Crypto.PublicKey import RSA
+
 
 class Rsa(object):
 
-    def __init__(self): 
-        #self.private_key = 'private.pem'
-        #self.public_key = 'public.pem'
-        random_generator = Random.new().read
-        key = RSA.generate(2048, random_generator)
-        self.private_key, self.public_key = key, key.publickey()
+    def __init__(self):
+        self.private_key = open("private.pem", "rb").read()
+        self.public_key = open("public.pem", "rb").read()
 
-    def firmar(self, message = ''):
-        try:
-            #with open(self.private_key, 'r') as f:
-            #    key = RSA.importKey(f.read())
-            key = self.private_key
-        except IOError as e:
-            return "NADAAAAA"
-            if e.errno != errno.ENOENT:
-                raise
-            # No private key, generate a new one. This can take a few seconds.
-            key = RSA.generate(4096)
-            with open(self.private_key, 'wb') as f:
-                f.write(key.exportKey('PEM'))
-            with open(self.public_key, 'wb') as f:
-                f.write(key.publickey().exportKey('PEM'))
+    def firmar(self, message=''):
+        hash = MD5.new(message.encode('utf-8', 'ignore'))
 
-        #hasherS = SHA256.new(message)
-        #hasher = MD5.new(message.encode('utf-8'))
-        hasher = MD5.new()
-        hasher.update(message)
-        #hasher = h.hexdigest()
-        #print(h.hexdigest())
-        print(hasher.hexdigest())
-        #print(hasherS.hexdigest())
-        signer = PKCS1_v1_5.new(key)
-        #signer = PKCS1_PSS.new(key)
-        #signature = signer.sign(hasher)
-        #return signature
-        digest = MD5.new()
-        digest.update(message)
-        return signer.sign(digest)
+        pri_key = RSA.import_key(self.private_key)
 
+        signer = PKCS1_v1_5.new(pri_key)
+        signature = signer.sign(hash)
 
-    def validar(self, message = '', signature = ''):
-        with open(self.public_key, 'rb') as f:
-            key = RSA.importKey(f.read())
-        #hasher = SHA256.new(message)
-        hasher = MD5.new(message)
-        verifier = PKCS1_v1_5.new(key)
-        if verifier.verify(hasher, signature):
+        hexify = codecs.getencoder('hex')
+        return hexify(signature)[0]
+
+    def validar(self, message='', signature=''):
+
+        dehexify = codecs.getdecoder('hex')
+        sign = dehexify(signature)[0]
+
+        hash = MD5.new(message)
+        pub_key = RSA.import_key(self.public_key)
+
+        verifier = PKCS1_v1_5.new(pub_key)
+
+        if verifier.verify(hash, sign):
             print('Nice, the signature is valid!')
             return True
         else:
